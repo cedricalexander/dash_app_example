@@ -1,5 +1,3 @@
-# scatterplot with two DropDown boxes for the different indicators
-# a slide for the different years in the data
 import pandas as pd
 import numpy as np
 import dash
@@ -7,7 +5,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-# Data cleaning
+# we need to clean the data
 df = pd.read_csv('nama_10_gdp_1_Data.csv')
 df['Value'].replace({':': np.nan}, inplace=True)
 df.dropna(inplace=True)
@@ -15,19 +13,19 @@ df_index_100 = df[df['UNIT'] == 'Chain linked volumes, index 2010=100']
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app2 = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 available_indicators = df['NA_ITEM'].unique()
 available2 = df['GEO'].unique()
 
-app.layout = html.Div([
+app2.layout = html.Div([
     html.Div([
 
         html.Div([
             dcc.Dropdown(
                 id='xaxis-column',
-                options=[{'label': i, 'value': i}
-                         for i in available_indicators],
+                options=[{'label': c, 'value': c}
+                         for c in available_indicators],
                 value='Gross domestic product at market prices'
             )
         ],
@@ -36,19 +34,17 @@ app.layout = html.Div([
         html.Div([
             dcc.Dropdown(
                 id='yaxis-column',
-                options=[{'label': i, 'value': i}
-                         for i in available_indicators],
-                value='Value added, gross'
+                options=[{'label': c, 'value': c}
+                         for c in available2],
+                value='European Union - 28 countries'
             )
         ],
             style={'width': '48%', 'float': 'right', 'display': 'inline-block'})
     ]),
- 
+
     dcc.Graph(id='indicator-graphic'),
-    dcc.Graph(id='indicator-graphic2'),
 
-
-    dcc.Slider(
+     dcc.Slider(
         id='year--slider',
         min=df['TIME'].min(),
         max=df['TIME'].max(),
@@ -56,13 +52,16 @@ app.layout = html.Div([
         marks={str(year): str(year) for year in df['TIME'].unique()},
         step=None
     )
+
 ])
 
-@app.callback(
+
+@app2.callback(
     Output('indicator-graphic', 'figure'),
     [Input('xaxis-column', 'value'),
      Input('yaxis-column', 'value'),
      Input('year--slider', 'value')])
+
 def update_graph(xaxis_column_name, yaxis_column_name, year_value):
     dff = df[df['TIME'] == year_value]
 
@@ -91,4 +90,9 @@ def update_graph(xaxis_column_name, yaxis_column_name, year_value):
     }
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app2.run_server(debug=True)
+
+
+
+
+
